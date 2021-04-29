@@ -10,5 +10,8 @@ router.post('/users', controllerUser.create);
 
 const controllerNotation = new ControllerNotation();
 router.post('/notation', controllerNotation.create);
+router.get('/notation', controllerNotation.getNotation);
+router.put('/notation', controllerNotation.putNotation);
+router.delete('/notation', controllerNotation.deleteNotation);
 
 export { router }
