@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { getRepository } from 'typeorm';
 import * as jwt from 'jwt-simple'
 import { Notation } from '../models/modelNotation';
+import { User } from '../models/modelUser';
 
 class ControllerNotation {
   async create(req: Request, res: Response) {
@@ -18,6 +19,14 @@ class ControllerNotation {
       let user_id;
       try{
         user_id = jwt.decode((String(token)), process.env.SECRET).id || '';
+
+        const repository = getRepository(User);
+        const user = await repository.findOne(user_id);
+        if (!user) {
+          return res.status(404).json({
+            message: 'usuario não encontrado'
+          })
+        }
       }catch(error){
         return res.status(401).json({
           message: 'token invalido'
@@ -43,6 +52,14 @@ class ControllerNotation {
       let user_id;
       try{
         user_id = jwt.decode((String(token)), process.env.SECRET).id || '';
+        const repository = getRepository(User);
+        const user = await repository.findOne(user_id);
+        if (!user) {
+          return res.status(404).json({
+            message: 'usuario não encontrado'
+          })
+        }
+        
       }catch(error){
         return res.status(401).json({
           message: 'token invalido'
