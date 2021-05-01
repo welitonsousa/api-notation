@@ -1,44 +1,37 @@
-import { Request, Response } from 'express';
+import { request, Request, Response } from 'express';
 import { getRepository } from 'typeorm';
 import * as jwt from 'jwt-simple'
 import { Notation } from '../models/modelNotation';
 import { User } from '../models/modelUser';
 
+interface UserReq{
+  id: string;
+}
+
+interface MyReq extends Request {
+  user: UserReq;
+}
+
+
 class ControllerNotation {
-  async create(req: Request, res: Response) {
+  async create(req: MyReq, res: Response) {
     try{
       const { title, body } = req.body;
-      const { token } = req.headers;
       
       if(!title || !body){
         return res.status(433).json({
           message: 'title e body são campos obrigatórios'
         });
       }
-
-      let user_id;
-      try{
-        user_id = jwt.decode((String(token)), process.env.SECRET).id || '';
-
-        const repository = getRepository(User);
-        const user = await repository.findOne(user_id);
-        if (!user) {
-          return res.status(404).json({
-            message: 'usuario não encontrado'
-          })
-        }
-      }catch(error){
-        return res.status(401).json({
-          message: 'token invalido'
-        });
-      }
+      const user_id = req.user.id;
+      console.log(user_id);
       
       const repository = getRepository(Notation);
       const notation = repository.create({title, body, user_id});
       
       repository.save(notation);
       return res.json({
-        message: 'nota criada'
+        message: 'nota criada com sucesso'
       });
     }catch(error){
       return res.status(500).json({
@@ -46,25 +39,9 @@ class ControllerNotation {
       });
     } 
   }
-  async getNotation(req: Request, res: Response){
+  async getNotation(req: MyReq, res: Response){
     try{
-      const { token } = req.headers;
-      let user_id;
-      try{
-        user_id = jwt.decode((String(token)), process.env.SECRET).id || '';
-        const repository = getRepository(User);
-        const user = await repository.findOne(user_id);
-        if (!user) {
-          return res.status(404).json({
-            message: 'usuario não encontrado'
-          })
-        }
-        
-      }catch(error){
-        return res.status(401).json({
-          message: 'token invalido'
-        });
-      }
+      const user_id = req.user.id;
       const repository = getRepository(Notation);
       const notations = await repository.find({user_id});
 
@@ -72,15 +49,14 @@ class ControllerNotation {
         message: 'sucesso',
         notations
       });
-
-    }catch(error){      
+    }catch(error){  
       return res.status(500).json({
         message: 'erro interno'
       })
     }
   }
 
-  async deleteNotation(req: Request, res: Response){
+  async deleteNotation(req: MyReq, res: Response){
     try{
       const { id } = req.body;
       if (!id){
@@ -88,18 +64,8 @@ class ControllerNotation {
           message: 'id é um campo obrigatório'
         });
       }
-
-      const { token } = req.headers;
-      try{
-        jwt.decode((String(token)), process.env.SECRET).id;
-      }catch(error){
-        return res.status(401).json({
-          message: 'token invalido'
-        });
-      }
       const repository = getRepository(Notation);
       const note = await repository.findOne(id)
-      
       if(note){
         await repository.delete(id);
         return res.json({
@@ -109,7 +75,6 @@ class ControllerNotation {
       return res.status(404).json({
         message: 'nota não encontrada'
       });
-
     }catch(error){
       return res.status(500).json({
         message: 'erro interno'
@@ -117,28 +82,18 @@ class ControllerNotation {
     }
   }
 
-  async putNotation(req: Request, res: Response){
+  async putNotation(req: MyReq, res: Response){
     try{
       const { id, title, body } = req.body;
-      if (!id || !title || !body){
+      if (!id || (!title && !body)){
         return res.status(433).json({
-          message: 'id, title e body são campos obrigatórios'
-        });
-      }
-
-      const { token } = req.headers;
-      try{
-        jwt.decode((String(token)), process.env.SECRET).id;
-      }catch(error){
-        return res.status(401).json({
-          message: 'token invalido'
+          message: 'id e title ou body são campos obrigatórios'
         });
       }
       const repository = getRepository(Notation);
       const note = await repository.findOne(id)
-      
       if(note){
-        await repository.update(id ,{title, body});
+        await repository.update(id ,{title: title || note.title, body: body || note.body});
         return res.json({
           message: 'nota atualizada'
         });
@@ -146,7 +101,6 @@ class ControllerNotation {
       return res.status(404).json({
         message: 'nota não encontrada'
       });
-
     }catch(error){
       return res.status(500).json({
         message: 'erro interno'
