@@ -1,17 +1,7 @@
-import { request, Request, Response } from 'express';
+import { Response } from 'express';
 import { getRepository } from 'typeorm';
-import * as jwt from 'jwt-simple'
+import { MyReq } from '../interfaces/myReq';
 import { Notation } from '../models/modelNotation';
-import { User } from '../models/modelUser';
-
-interface UserReq{
-  id: string;
-}
-
-interface MyReq extends Request {
-  user: UserReq;
-}
-
 
 class ControllerNotation {
   async create(req: MyReq, res: Response) {
@@ -49,7 +39,9 @@ class ControllerNotation {
         message: 'sucesso',
         notations
       });
-    }catch(error){  
+    }catch(error){
+      console.log(error);
+      
       return res.status(500).json({
         message: 'erro interno'
       })

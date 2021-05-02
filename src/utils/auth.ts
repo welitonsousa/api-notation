@@ -22,7 +22,7 @@ const auth = () => {
   passport.use(strategy);
   return {
     initialize: () => passport.initialize(),
-    authenticate: () => passport.authenticate("jwt", {session: process.env.SESSION == "true"})
+    authenticate: (cb?) => passport.authenticate("jwt", {session: process.env.SESSION == "true"}, cb)
   };
 };
 
