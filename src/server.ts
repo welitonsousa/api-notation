@@ -13,5 +13,5 @@ app.use(cors);
 app.use(express.json());
 app.use(router);
 
-
-app.listen(3000, () => console.info('server is running'));
+const port = process.env.PORT|| 3000;
+app.listen(port, () => console.info('server is running'));

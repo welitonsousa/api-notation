@@ -6,7 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon --exec ts-node src/server.ts",
-    "typeorm": "ts-node node_modules/typeorm/cli.js"
+    "start": "ts-node src/server.ts",
+    "typeorm": "ts-node node_modules/typeorm/cli.js",
+    "migration": "rimraf src/database/migrations && npm run typeorm migration:generate -- -n migration",
+    "migrate": "npm run typeorm migration:run",
+    "prestart": "npm run migration && npm run migrate"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +27,7 @@
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "reflect-metadata": "^0.1.13",
+    "rimraf": "^3.0.2",
     "sqlite3": "^5.0.2",
     "typeorm": "^0.2.32",
     "uuid": "^8.3.2"
@@ -31,7 +36,7 @@
     "@types/bcryptjs": "^2.4.2",
     "@types/express": "^4.17.11",
     "@types/passport-jwt": "^3.0.5",
-    "ts-node-dev": "^1.1.6",
+    "ts-node": "^9.1.1",
     "typescript": "^4.2.4"
   }
 }
