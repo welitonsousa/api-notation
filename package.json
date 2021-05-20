@@ -8,9 +8,10 @@
     "dev": "nodemon --exec ts-node src/server.ts",
     "start": "ts-node src/server.ts",
     "typeorm": "ts-node node_modules/typeorm/cli.js",
-    "migration": "npm run typeorm migration:generate -- -n migration",
+    "migration": "rimraf src/database/migrations && npm run typeorm migration:generate -- -n migration",
     "migrate": "npm run typeorm migration:run",
-    "prestart": "npm run migration && npm run migrate"
+    "prestart": "npm run migrate",
+    "postinstall": "npm run migration"
   },
   "keywords": [],
   "author": "",
