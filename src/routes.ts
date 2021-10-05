@@ -13,9 +13,13 @@ router.post('/users', controllerUser.create);
 router.use(auth().initialize());
 
 const controllerNotation = new ControllerNotation();
+router.put('/user/picture', patterResponse401, controllerUser.putPicture);
+router.put('/user/pass', patterResponse401, controllerUser.putPass);
+
 router.post('/notation', patterResponse401, controllerNotation.create);
 router.get('/notation', patterResponse401, controllerNotation.getNotation);
 router.put('/notation', patterResponse401, controllerNotation.putNotation);
-router.delete('/notation', patterResponse401, controllerNotation.deleteNotation);
+router.delete('/notation/:id', patterResponse401, controllerNotation.deleteNotation);
+router.delete('/notation/', patterResponse401, controllerNotation.deleteNotation);
 
 export { router }

@@ -13,9 +13,7 @@ class ControllerNotation {
           message: 'title e body são campos obrigatórios'
         });
       }
-      const user_id = req.user.id;
-      console.log(user_id);
-      
+      const user_id = req.user.id;      
       const repository = getRepository(Notation);
       const notation = repository.create({title, body, user_id});
       
@@ -30,6 +28,7 @@ class ControllerNotation {
     } 
   }
   async getNotation(req: MyReq, res: Response){
+    
     try{
       const user_id = req.user.id;
       const repository = getRepository(Notation);
@@ -39,9 +38,7 @@ class ControllerNotation {
         message: 'sucesso',
         notations
       });
-    }catch(error){
-      console.log(error);
-      
+    }catch(error){      
       return res.status(500).json({
         message: 'erro interno'
       })
@@ -50,7 +47,11 @@ class ControllerNotation {
 
   async deleteNotation(req: MyReq, res: Response){
     try{
-      const { id } = req.body;
+      let id = req.params.id;
+      const user_id = req.user.id;
+      if (!id) {
+        id = req.body;
+      }      
       if (!id){
         return res.status(433).json({
           message: 'id é um campo obrigatório'
@@ -58,7 +59,7 @@ class ControllerNotation {
       }
       const repository = getRepository(Notation);
       const note = await repository.findOne(id)
-      if(note){
+      if(note && note.user_id == user_id){
         await repository.delete(id);
         return res.json({
           message: 'nota deletada'
@@ -77,6 +78,8 @@ class ControllerNotation {
   async putNotation(req: MyReq, res: Response){
     try{
       const { id, title, body } = req.body;
+      const user_id = req.user.id;
+
       if (!id || (!title && !body)){
         return res.status(433).json({
           message: 'id e title ou body são campos obrigatórios'
@@ -84,7 +87,7 @@ class ControllerNotation {
       }
       const repository = getRepository(Notation);
       const note = await repository.findOne(id)
-      if(note){
+      if(note && note.user_id == user_id){
         await repository.update(id ,{title: title || note.title, body: body || note.body});
         return res.json({
           message: 'nota atualizada'

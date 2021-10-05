@@ -12,6 +12,9 @@ class User {
   @Column()
   email: string;
 
+  @Column({nullable: true})
+  picture: string;
+
   @Column()
   password: string;
 
