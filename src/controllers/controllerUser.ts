@@ -5,8 +5,163 @@ import * as jwt from "jwt-simple";
 import * as bcrypt from "bcryptjs";
 import * as EmailValidator from "email-validator";
 import { MyReq } from "../interfaces/myReq";
+import nodemailer from "nodemailer";
+import { Hashs } from "../models/modelHash";
+import { emialReset } from "../utils/emailTamplate";
 
 class ControllerUser {
+
+
+
+  async sendMail(req: Request, res: Response) {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(433).json({
+          message: "email é campo obrigatorio",
+        });
+      }
+
+      const repository = getRepository(User);
+      const userAlreadyExists = await repository.findOne({ email });
+
+      if (userAlreadyExists) {
+        const hash = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
+        const repositoryHash = getRepository(Hashs);
+        const data = await repositoryHash.create({
+          hash,
+          email,
+        });
+        await repositoryHash.save(data);
+
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL,
+            pass: process.env.EMAIL_PASS
+          }
+        });
+        const mailOptions = {
+          from: 'App notation',
+          to: email,
+          subject: "Recuperação de senha",
+          html: emialReset(hash),
+        };
+        transporter.sendMail(mailOptions, () => { });
+        return res.json({
+          message: "Enviamos um email com um código unico",
+        });
+      }
+      return res.status(401).json({
+        message: "email não encontrado",
+      });
+    } catch (error) {
+      return res.status(500).json({
+        message: "erro",
+      });
+    }
+  }
+
+  async resetPass(req: Request, res: Response) {
+    try {
+      const { email, hash, password } = req.body;
+
+      if (!email || !hash || !password) {
+        return res.status(433).json({
+          message: "email, senha e código são obrigatórios",
+        });
+      }
+      if (!password || password.length < 8) {
+        return res.status(405).json({
+          message: "a nova senha deve ter no minimo 8 caracteres",
+        });
+      }
+
+      const repository = getRepository(User);
+      const userAlreadyExists = await repository.findOne({ email });
+      if (userAlreadyExists) {
+        const repositoryHash = getRepository(Hashs);
+        const hashExist = await repositoryHash.findOne({ hash })
+        if (hashExist && hashExist.email == email && hashExist.valid && hashExist.created_at) {
+          const date = new Date(hashExist.created_at);
+          const now = new Date();
+          
+          const difference = now.getTime() - date.getTime();
+          const minutes = Math.round(difference / 60000);
+          
+          if (minutes <= 5) {
+            const hashP = await bcrypt.hash(password, 10);
+            await repository.update(userAlreadyExists.id, { password: hashP });
+            await repositoryHash.update(hashExist.id, {valid: false});
+            await repositoryHash.delete(hashExist.id);
+            
+            return res.json({
+              message: 'Senha atualizada'
+            });
+          }
+        }
+        return res.status(405).json({
+          message: "código inválido",
+        });
+
+      }
+      return res.status(401).json({
+        message: "email não encontrado",
+      });
+    } catch (error) {            
+      return res.status(500).json({
+        message: "erro",
+      });
+    }
+  }
+
+
+  async valideCode(req: Request, res: Response) {
+    try {
+      const { email, hash } = req.body;
+
+      if (!email || !hash ) {
+        return res.status(433).json({
+          message: "email e código são obrigatórios",
+        });
+      }
+      
+
+      const repository = getRepository(User);
+      const userAlreadyExists = await repository.findOne({ email });
+      if (userAlreadyExists) {
+        const repositoryHash = getRepository(Hashs);
+        const hashExist = await repositoryHash.findOne({ hash })
+        if (hashExist && hashExist.email == email && hashExist.valid && hashExist.created_at) {
+          const date = new Date(hashExist.created_at);
+          const now = new Date();
+          
+          const difference = now.getTime() - date.getTime();
+          const minutes = Math.round(difference / 60000);
+          
+          if (minutes <= 5) {
+            return res.json({
+              message: 'código valido'
+            });
+          }
+        }
+        return res.status(404).json({
+          message: "código inválido",
+        });
+
+      }
+      return res.status(404).json({
+        message: "email não encontrado",
+      });
+    } catch (error) {            
+      return res.status(500).json({
+        message: "erro",
+      });
+    }
+  }
+
+
   async create(req: Request, res: Response) {
     try {
       const { name, email, password } = req.body;
@@ -33,7 +188,7 @@ class ControllerUser {
         });
       }
       console.log(process.env.SECRET);
-      
+
       const hashP = await bcrypt.hash(password, 10);
       const user = userRepository.create({
         name,
@@ -47,7 +202,7 @@ class ControllerUser {
       });
     } catch (error) {
       console.log(error);
-      
+
       return res.status(500).json({
         message: "erro interno",
       });
@@ -78,25 +233,25 @@ class ControllerUser {
     }
   }
 
+
+
   async putPass(req: MyReq, res: Response) {
     try {
       const { pass, new_pass } = req.body;
       const user_id = req.user.id;
 
-      console.log(new_pass);
-      
       if (!new_pass || new_pass.length < 8) {
         return res.status(403).json({
           message: "new_pass deve ter no minimo 8 caracteres",
         });
       }
-      
+
       if (!pass || pass.length < 8) {
         return res.status(403).json({
           message: "pass deve ter no minimo 8 caracteres",
         });
       }
-      
+
       const repository = getRepository(User);
       const userAlreadyExists = await repository.findOne(user_id);
 
@@ -156,7 +311,7 @@ class ControllerUser {
         userAlreadyExists.password
       );
       console.log(userAlreadyExists);
-      
+
       if (authorization) {
         const token = jwt.encode(
           { id: userAlreadyExists.id },

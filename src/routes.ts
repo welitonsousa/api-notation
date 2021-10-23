@@ -9,6 +9,9 @@ const router = Router();
 const controllerUser = new ControllerUser();
 router.post('/sign', controllerUser.sign);
 router.post('/users', controllerUser.create);
+router.post('/send/code-pass', controllerUser.sendMail);
+router.post('/valide/code', controllerUser.valideCode);
+router.put('/reset/pass', controllerUser.resetPass);
 
 router.use(auth().initialize());
 
