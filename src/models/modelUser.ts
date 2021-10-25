@@ -18,6 +18,9 @@ class User {
   @Column()
   password: string;
 
+  @Column({nullable: true})
+  valid_sign: Date;
+
   @CreateDateColumn()
   created_at: Date;
 

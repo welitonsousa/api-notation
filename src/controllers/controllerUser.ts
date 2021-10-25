@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { getRepository } from "typeorm";
 import { User } from "../models/modelUser";
-import * as jwt from "jwt-simple";
+// import * as jwt from "jwt-simple";
 import * as bcrypt from "bcryptjs";
 import * as EmailValidator from "email-validator";
 import { MyReq } from "../interfaces/myReq";
@@ -9,7 +9,7 @@ import nodemailer from "nodemailer";
 import { Hashs } from "../models/modelHash";
 import { emialReset } from "../utils/emailTamplate";
 import admin from "firebase-admin";
-import { JWTAccess } from "google-auth-library";
+import jwt from 'jsonwebtoken';
 
 class ControllerUser {
 
@@ -53,7 +53,7 @@ class ControllerUser {
           message: "Enviamos um email com um código unico",
         });
       }
-      return res.status(401).json({
+      return res.status(403).json({
         message: "email não encontrado",
       });
     } catch (error) {
@@ -92,10 +92,10 @@ class ControllerUser {
 
           if (minutes <= 5) {
             const hashP = await bcrypt.hash(password, 10);
-            await repository.update(userAlreadyExists.id, { password: hashP });
+            await repository.update(userAlreadyExists.id, { password: hashP, valid_sign: Date() });
             await repositoryHash.update(hashExist.id, { valid: false });
             await repositoryHash.delete(hashExist.id);
-
+            
             return res.json({
               message: 'Senha atualizada'
             });
@@ -106,7 +106,7 @@ class ControllerUser {
         });
 
       }
-      return res.status(401).json({
+      return res.status(404).json({
         message: "email não encontrado",
       });
     } catch (error) {
@@ -181,7 +181,7 @@ class ControllerUser {
 
       const userAlreadyExists = await userRepository.findOne({ email });
       if (userAlreadyExists) {
-        return res.status(400).json({
+        return res.status(403).json({
           message: "Email já cadastrado",
         });
       }
@@ -197,14 +197,36 @@ class ControllerUser {
         message: "usuario criado",
       });
     } catch (error) {
-
       return res.status(500).json({
         message: "erro interno",
       });
     }
   }
 
-  
+  async getme(req: MyReq, res: Response) {
+    try {
+      const user_id = req.user.id;
+      const repository = getRepository(User);
+      const userAlreadyExists = await repository.findOne(user_id);
+
+      if (userAlreadyExists) {
+        return res.json({
+          message: "usuário encontrado",
+          user: userAlreadyExists.name,
+          picture: userAlreadyExists.picture,
+        });
+
+      } else {
+        return res.status(404).json({
+          message: 'usuário não encontrado'
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        message: 'erro interno'
+      })
+    }
+  }
 
   async putPicture(req: MyReq, res: Response) {
     try {
@@ -248,7 +270,7 @@ class ControllerUser {
 
   async putPass(req: MyReq, res: Response) {
     try {
-      const { pass, new_pass } = req.body;
+      const { pass, new_pass, logout } = req.body;
       const user_id = req.user.id;
 
       if (!new_pass || new_pass.length < 8) {
@@ -276,6 +298,10 @@ class ControllerUser {
           const hashP = await bcrypt.hash(new_pass, 10);
 
           await repository.update(user_id, { password: hashP });
+          if (logout) {
+            await repository.update(userAlreadyExists.id, { valid_sign: Date() })
+          }
+
           return res.json({
             message: 'Senha atualizada'
           });
@@ -323,22 +349,30 @@ class ControllerUser {
       );
 
       if (authorization) {
-        const token = jwt.encode(
-          { id: userAlreadyExists.id },
-          process.env.SECRET
+        const date = Date();
+
+        const token = jwt.sign(
+          {
+            id: userAlreadyExists.id,
+            date: date,
+          },
+          process.env.SECRET,
         );
+        await userRepository.update(userAlreadyExists.id, { valid_sign: date })
         return res.json({
           message: "login efetuado",
           user: userAlreadyExists.name,
           picture: userAlreadyExists.picture,
           token,
         });
+      } else {
+        return res.status(403).json({
+          message: "senha invalida",
+        });
       }
-      return res.status(401).json({
-        message: "senha invalida",
-      });
 
     } catch (error) {
+      console.log(error);
 
       return res.status(500).json({
         message: "erro interno",

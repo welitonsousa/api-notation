@@ -18,7 +18,7 @@ router.use(auth().initialize());
 const controllerNotation = new ControllerNotation();
 router.put('/user/picture', patterResponse401, controllerUser.putPicture);
 router.put('/user/pass', patterResponse401, controllerUser.putPass);
-// router.get('/user/me', patterResponse401, controllerUser.getme);
+router.get('/user/me', patterResponse401, controllerUser.getme);
 
 router.post('/notation', patterResponse401, controllerNotation.create);
 router.get('/notation', patterResponse401, controllerNotation.getNotation);
