@@ -8,10 +8,10 @@ import { MyReq } from "../interfaces/myReq";
 import nodemailer from "nodemailer";
 import { Hashs } from "../models/modelHash";
 import { emialReset } from "../utils/emailTamplate";
+import admin from "firebase-admin";
+import { JWTAccess } from "google-auth-library";
 
 class ControllerUser {
-
-
 
   async sendMail(req: Request, res: Response) {
     try {
@@ -86,16 +86,16 @@ class ControllerUser {
         if (hashExist && hashExist.email == email && hashExist.valid && hashExist.created_at) {
           const date = new Date(hashExist.created_at);
           const now = new Date();
-          
+
           const difference = now.getTime() - date.getTime();
           const minutes = Math.round(difference / 60000);
-          
+
           if (minutes <= 5) {
             const hashP = await bcrypt.hash(password, 10);
             await repository.update(userAlreadyExists.id, { password: hashP });
-            await repositoryHash.update(hashExist.id, {valid: false});
+            await repositoryHash.update(hashExist.id, { valid: false });
             await repositoryHash.delete(hashExist.id);
-            
+
             return res.json({
               message: 'Senha atualizada'
             });
@@ -109,24 +109,23 @@ class ControllerUser {
       return res.status(401).json({
         message: "email não encontrado",
       });
-    } catch (error) {            
+    } catch (error) {
       return res.status(500).json({
         message: "erro",
       });
     }
   }
 
-
   async valideCode(req: Request, res: Response) {
     try {
       const { email, hash } = req.body;
 
-      if (!email || !hash ) {
+      if (!email || !hash) {
         return res.status(433).json({
           message: "email e código são obrigatórios",
         });
       }
-      
+
 
       const repository = getRepository(User);
       const userAlreadyExists = await repository.findOne({ email });
@@ -136,10 +135,10 @@ class ControllerUser {
         if (hashExist && hashExist.email == email && hashExist.valid && hashExist.created_at) {
           const date = new Date(hashExist.created_at);
           const now = new Date();
-          
+
           const difference = now.getTime() - date.getTime();
           const minutes = Math.round(difference / 60000);
-          
+
           if (minutes <= 5) {
             return res.json({
               message: 'código valido'
@@ -154,13 +153,12 @@ class ControllerUser {
       return res.status(404).json({
         message: "email não encontrado",
       });
-    } catch (error) {            
+    } catch (error) {
       return res.status(500).json({
         message: "erro",
       });
     }
   }
-
 
   async create(req: Request, res: Response) {
     try {
@@ -187,8 +185,6 @@ class ControllerUser {
           message: "Email já cadastrado",
         });
       }
-      console.log(process.env.SECRET);
-
       const hashP = await bcrypt.hash(password, 10);
       const user = userRepository.create({
         name,
@@ -201,7 +197,6 @@ class ControllerUser {
         message: "usuario criado",
       });
     } catch (error) {
-      console.log(error);
 
       return res.status(500).json({
         message: "erro interno",
@@ -209,31 +204,47 @@ class ControllerUser {
     }
   }
 
+  
+
   async putPicture(req: MyReq, res: Response) {
     try {
-      const { picture } = req.body;
+
       const user_id = req.user.id;
 
       const repository = getRepository(User);
       const userAlreadyExists = await repository.findOne(user_id);
 
       if (userAlreadyExists) {
-        await repository.update(user_id, { picture });
-        return res.json({
-          message: 'foto de perfil atualizada'
+        const formidable = require('formidable');
+        const form = new formidable.IncomingForm();
+
+        form.parse(req, async (err, fields, files) => {
+          try {
+            const bucket = admin.storage().bucket(process.env.BUCKET_NAME);
+            const name = `${new Date().getTime()}${files.files.name}`
+            const response = await bucket.upload(files.files.path, { destination: name, public: true, private: false });
+            const picture = response[0].publicUrl();
+            await repository.update(user_id, { picture });
+            return res.status(200).send({
+              message: 'foto de perfil atualizada'
+            });
+          } catch (error) {
+            return res.status(503).json({
+              message: 'Não foi possível atualizar sua foto'
+            });
+          }
+        });
+      } else {
+        return res.status(404).json({
+          message: 'usuário não encontrado'
         });
       }
-      return res.status(404).json({
-        message: 'usuário não encontrado'
-      });
     } catch (error) {
       return res.status(500).json({
         message: 'erro interno'
       })
     }
   }
-
-
 
   async putPass(req: MyReq, res: Response) {
     try {
@@ -310,7 +321,6 @@ class ControllerUser {
         password,
         userAlreadyExists.password
       );
-      console.log(userAlreadyExists);
 
       if (authorization) {
         const token = jwt.encode(
@@ -329,7 +339,6 @@ class ControllerUser {
       });
 
     } catch (error) {
-      console.log(error);
 
       return res.status(500).json({
         message: "erro interno",
