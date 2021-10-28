@@ -95,7 +95,7 @@ class ControllerUser {
             await repository.update(userAlreadyExists.id, { password: hashP, valid_sign: Date() });
             await repositoryHash.update(hashExist.id, { valid: false });
             await repositoryHash.delete(hashExist.id);
-            
+
             return res.json({
               message: 'Senha atualizada'
             });
@@ -358,7 +358,9 @@ class ControllerUser {
           },
           process.env.SECRET,
         );
-        await userRepository.update(userAlreadyExists.id, { valid_sign: date })
+        if (!userAlreadyExists.valid_sign) {
+          await userRepository.update(userAlreadyExists.id, { valid_sign: date })
+        }
         return res.json({
           message: "login efetuado",
           user: userAlreadyExists.name,
