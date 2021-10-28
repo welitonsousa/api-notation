@@ -248,7 +248,8 @@ class ControllerUser {
             const picture = response[0].publicUrl();
             await repository.update(user_id, { picture });
             return res.status(200).send({
-              message: 'foto de perfil atualizada'
+              message: 'foto de perfil atualizada',
+              picture
             });
           } catch (error) {
             return res.status(503).json({
