@@ -16,6 +16,7 @@ const auth = () => {
     const repository = getRepository(User);
     const user = await repository.findOne(payload.id);
     const validSign = new Date(user.valid_sign)
+    
     const date = new Date(payload.date);
     if (date < validSign) {
       return done(new Error("token expirado"), null);

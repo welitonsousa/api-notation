@@ -18,6 +18,9 @@ class Notation {
   @CreateDateColumn()
   created_at: Date;
 
+  @CreateDateColumn({default: new Date()})
+  updated_at: Date;
+
   constructor() {
     if (!this.id) {
       this.id = uuid();
