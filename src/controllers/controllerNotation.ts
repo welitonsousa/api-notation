@@ -29,35 +29,40 @@ class ControllerNotation {
   }
   async getNotation(req: MyReq, res: Response) {
     const data = req.query;
-    
+
     try {
       const user_id = req.user.id;
       const repository = getRepository(Notation);
       let notations = await repository.find({ user_id });
+      if (data.order_by === undefined) {
+        data.order_by = 'updated_at'
+      }
 
-
-      if (data.order_by == 'created_at') {
+      if (data.order_by === 'created_at') {
         notations = notations.sort(function (a, b) {
           const c = new Date(a.created_at)
           const d = new Date(b.created_at)
           return c.getTime() - d.getTime();
         });
       }
-      else if (data.order_by == 'updated_at' || (data.order_by === undefined)) {
+      else if (data.order_by === 'title') {
+        notations = notations.sort((a, b) => (a.title > b.title) ? 1 : -1)
+      }
+      else if (data.order_by === 'updated_at') {
         notations = notations.sort(function (a, b) {
           const c = new Date(a.updated_at)
           const d = new Date(b.updated_at)
           return c.getTime() - d.getTime();
         });
       }
-      if ((data.reverse && data.reverse === 'true') || (data.reverse === undefined)) {
+      if (data.reverse === 'true' || data.reverse === undefined) {
         notations.reverse()
       }
 
       return res.json({
         message: 'sucesso',
-        order_by: data.order_by || 'updated_at',
-        reverse: data.reverse === 'true' || (data.reverse === undefined),
+        order_by: data.order_by,
+        reverse: data.reverse === 'true' || data.reverse === undefined,
         notations
       });
     } catch (error) {
