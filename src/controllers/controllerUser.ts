@@ -27,7 +27,7 @@ class ControllerUser {
       const userAlreadyExists = await repository.findOne({ email });
 
       if (userAlreadyExists) {
-        const hash = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
+        const hash = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5).toUpperCase();
         const repositoryHash = getRepository(Hashs);
         const data = await repositoryHash.create({
           hash,
