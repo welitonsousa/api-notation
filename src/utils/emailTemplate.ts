@@ -1,4 +1,4 @@
-const emialReset = (code: string) => {
+const emailReset = (code: string) => {
 
     return `
     <!DOCTYPE html>
@@ -10,11 +10,11 @@ const emialReset = (code: string) => {
     <title>Document</title>
 </head>
 <body style="text-align: center;">
-    <h2>App Notataion</h2>
+    <h2>App Notation</h2>
     <p>Código de recuperação se senha:</p>
     <h1>${code}</h1>
     <p>Não compartilhe este código com ninguém</p>
 </body>
 </html>`
 }
-export { emialReset }
+export { emailReset }

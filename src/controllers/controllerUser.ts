@@ -1,13 +1,12 @@
 import { Request, Response } from "express";
 import { getRepository } from "typeorm";
 import { User } from "../models/modelUser";
-// import * as jwt from "jwt-simple";
 import * as bcrypt from "bcryptjs";
 import * as EmailValidator from "email-validator";
 import { MyReq } from "../interfaces/myReq";
 import nodemailer from "nodemailer";
 import { Hashs } from "../models/modelHash";
-import { emialReset } from "../utils/emailTamplate";
+import { emailReset } from "../utils/emailTemplate";
 import admin from "firebase-admin";
 import jwt from 'jsonwebtoken';
 
@@ -46,11 +45,11 @@ class ControllerUser {
           from: 'App notation',
           to: email,
           subject: "Recuperação de senha",
-          html: emialReset(hash),
+          html: emailReset(hash),
         };
         transporter.sendMail(mailOptions, () => { });
         return res.json({
-          message: "Enviamos um email com um código unico",
+          message: "Enviamos um email com um código único",
         });
       }
       return res.status(403).json({
