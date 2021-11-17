@@ -15,7 +15,7 @@ class ControllerNotation {
       }
       const user_id = req.user.id;
       const repository = getRepository(Notation);
-      const notation = repository.create({ title, body, user_id });
+      const notation = repository.create({ title, body, user_id, updated_at: new Date() });
 
       repository.save(notation);
       return res.json({
