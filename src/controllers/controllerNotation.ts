@@ -3,6 +3,7 @@ import { getRepository } from 'typeorm';
 import { MyReq } from '../interfaces/myReq';
 import { Notation } from '../models/modelNotation';
 
+
 class ControllerNotation {
   async create(req: MyReq, res: Response) {
     try {
@@ -15,7 +16,7 @@ class ControllerNotation {
       }
       const user_id = req.user.id;
       const repository = getRepository(Notation);
-      const notation = repository.create({ title, body, user_id, updated_at: new Date() });
+      const notation = repository.create({ title, body, user_id, updated_at: new Date().toLocaleString("pt-BR") });
 
       repository.save(notation);
       return res.json({
@@ -115,7 +116,7 @@ class ControllerNotation {
       const repository = getRepository(Notation);
       const note = await repository.findOne(id)
       if (note && note.user_id == user_id) {
-        await repository.update(id, { title: title || note.title, body: body || note.body, updated_at: new Date() });
+        await repository.update(id, { title: title || note.title, body: body || note.body, updated_at: new Date().toLocaleString("pt-BR") });
         return res.json({
           message: 'nota atualizada'
         });
