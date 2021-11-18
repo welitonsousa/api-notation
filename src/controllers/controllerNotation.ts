@@ -16,7 +16,9 @@ class ControllerNotation {
       }
       const user_id = req.user.id;
       const repository = getRepository(Notation);
-      const notation = repository.create({ title, body, user_id, updated_at: new Date().toLocaleString("pt-BR") });
+      const date = new Date()
+      date.setHours(date.getHours() - 6)
+      const notation = repository.create({ title, body, user_id, updated_at: date });
 
       repository.save(notation);
       return res.json({
@@ -30,7 +32,7 @@ class ControllerNotation {
   }
   async getNotation(req: MyReq, res: Response) {
     const data = req.query;
-
+    
     try {
       const user_id = req.user.id;
       const repository = getRepository(Notation);
@@ -116,7 +118,9 @@ class ControllerNotation {
       const repository = getRepository(Notation);
       const note = await repository.findOne(id)
       if (note && note.user_id == user_id) {
-        await repository.update(id, { title: title || note.title, body: body || note.body, updated_at: new Date().toLocaleString("pt-BR") });
+        const date = new Date()
+        date.setHours(date.getHours() - 6)
+        await repository.update(id, { title: title || note.title, body: body || note.body, updated_at: date });
         return res.json({
           message: 'nota atualizada'
         });

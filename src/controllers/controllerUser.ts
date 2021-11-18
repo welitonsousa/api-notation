@@ -319,8 +319,7 @@ class ControllerUser {
 
   async sign(req: Request, res: Response) {
     try {
-      const { email, password } = req.body;
-
+      const { email, password } = req.body;      
       if (!email || !password) {
         return res.status(433).json({
           message: "email e password são campos obrigatorios",

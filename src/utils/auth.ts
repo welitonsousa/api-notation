@@ -12,8 +12,9 @@ const params = {
 };
 
 const auth = () => {
-  const strategy = new Strategy(params, async (payload, done) => {
+  const strategy = new Strategy(params, async (payload, done) => {    
     const repository = getRepository(User);
+
     const user = await repository.findOne(payload.id);
     const validSign = new Date(user.valid_sign)
     
