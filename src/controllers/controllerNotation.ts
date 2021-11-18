@@ -17,7 +17,7 @@ class ControllerNotation {
       const user_id = req.user.id;
       const repository = getRepository(Notation);
       const date = new Date()
-      date.setHours(date.getHours() - 6)
+      date.setHours(date.getHours() - 3)
       const notation = repository.create({ title, body, user_id, updated_at: date });
 
       repository.save(notation);
@@ -119,7 +119,7 @@ class ControllerNotation {
       const note = await repository.findOne(id)
       if (note && note.user_id == user_id) {
         const date = new Date()
-        date.setHours(date.getHours() - 6)
+        date.setHours(date.getHours() - 3)
         await repository.update(id, { title: title || note.title, body: body || note.body, updated_at: date });
         return res.json({
           message: 'nota atualizada'
