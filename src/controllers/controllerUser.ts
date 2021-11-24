@@ -240,7 +240,7 @@ class ControllerUser {
         const form = new formidable.IncomingForm();
 
         form.parse(req, async (err, fields, files) => {
-          if (files) {
+          if (files.files) {
 
             try {
               const bucket = admin.storage().bucket(process.env.BUCKET_NAME);
