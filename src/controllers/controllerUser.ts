@@ -240,19 +240,27 @@ class ControllerUser {
         const form = new formidable.IncomingForm();
 
         form.parse(req, async (err, fields, files) => {
-          try {
-            const bucket = admin.storage().bucket(process.env.BUCKET_NAME);
-            const name = `${new Date().getTime()}${files.files.name}`
-            const response = await bucket.upload(files.files.path, { destination: name, public: true, private: false });
-            const picture = response[0].publicUrl();
-            await repository.update(user_id, { picture });
-            return res.status(200).send({
-              message: 'foto de perfil atualizada',
-              picture
-            });
-          } catch (error) {
-            return res.status(503).json({
-              message: 'Não foi possível atualizar sua foto'
+          if (files) {
+
+            try {
+              const bucket = admin.storage().bucket(process.env.BUCKET_NAME);
+              const name = `${new Date().getTime()}${files.files.name}`
+              const response = await bucket.upload(files.files.path, { destination: name, public: true, private: false });
+              const picture = response[0].publicUrl();
+              await repository.update(user_id, { picture });
+              return res.status(200).send({
+                message: 'foto de perfil atualizada',
+                picture
+              });
+            } catch (error) {
+              return res.status(503).json({
+                message: 'Não foi possível atualizar sua foto'
+              });
+            }
+          }else {
+            await repository.update(user_id, { picture: null });
+            return res.status(200).json({
+              message: 'Foto de perfil removida'
             });
           }
         });
