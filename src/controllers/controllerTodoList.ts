@@ -74,7 +74,7 @@ class ControllerTodoList {
         message: "sucesso",
         order_by: data.order_by,
         reverse: data.reverse === "true" || data.reverse === undefined,
-        response,
+        todos: response,
       });
     } catch (error) {
       return res.status(500).json({
