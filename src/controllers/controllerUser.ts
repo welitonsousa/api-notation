@@ -47,7 +47,7 @@ class ControllerUser {
           subject: "Recuperação de senha",
           html: emailReset(hash),
         };
-        transporter.sendMail(mailOptions, () => { });
+        await transporter.sendMail(mailOptions, () => { });
         return res.json({
           message: "Enviamos um email com um código único",
         });
