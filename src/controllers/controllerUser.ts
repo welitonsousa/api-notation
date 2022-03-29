@@ -25,7 +25,7 @@ class ControllerUser {
       const repository = getRepository(User);
       const userAlreadyExists = await repository.findOne({ email });
 
-      if (userAlreadyExists) {
+      if (userAlreadyExists ) {
         const hash = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5).toUpperCase();
         const repositoryHash = getRepository(Hashs);
         const data = await repositoryHash.create({
@@ -36,18 +36,19 @@ class ControllerUser {
 
         const transporter = nodemailer.createTransport({
           service: 'gmail',
+          secure: false,
           auth: {
             user: process.env.EMAIL,
             pass: process.env.EMAIL_PASS
           }
         });
         const mailOptions = {
-          from: 'App notation',
+          from: '"App notation" appnotation.oficial@gmail.com',
           to: email,
           subject: "Recuperação de senha",
           html: emailReset(hash),
         };
-        await transporter.sendMail(mailOptions, () => { });
+        await transporter.sendMail(mailOptions);
         return res.json({
           message: "Enviamos um email com um código único",
         });
@@ -56,6 +57,8 @@ class ControllerUser {
         message: "email não encontrado",
       });
     } catch (error) {
+      console.log(error);
+      
       return res.status(500).json({
         message: "erro",
       });
