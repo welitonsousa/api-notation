@@ -29,7 +29,7 @@ class ControllerContact {
           from: email,
           to: 'welitonubuntu@gmail.com',
           subject: motivation,
-          body: body,
+          text: body,
         };
         await transporter.sendMail(mailOptions);
         return res.json({
