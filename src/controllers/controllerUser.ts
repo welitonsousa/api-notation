@@ -112,6 +112,7 @@ class ControllerUser {
         message: "email não encontrado",
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         message: "erro",
       });
@@ -156,6 +157,7 @@ class ControllerUser {
         message: "email não encontrado",
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         message: "erro",
       });
@@ -199,6 +201,7 @@ class ControllerUser {
         message: "usuario criado",
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         message: "erro interno",
       });
@@ -224,6 +227,7 @@ class ControllerUser {
         });
       }
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         message: 'erro interno'
       })
@@ -273,6 +277,7 @@ class ControllerUser {
         });
       }
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         message: 'erro interno'
       })
@@ -322,6 +327,7 @@ class ControllerUser {
         message: 'antiga senha invalida'
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         message: 'erro interno'
       })

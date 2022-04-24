@@ -25,6 +25,7 @@ class ControllerNotation {
         message: 'nota criada com sucesso'
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         message: 'erro interno'
       });
@@ -69,6 +70,7 @@ class ControllerNotation {
         notations
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         message: 'erro interno'
       })
@@ -99,6 +101,7 @@ class ControllerNotation {
         message: 'nota não encontrada'
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         message: 'erro interno'
       })
@@ -129,6 +132,7 @@ class ControllerNotation {
         message: 'nota não encontrada'
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         message: 'erro interno'
       })

@@ -27,6 +27,7 @@ class ControllerTodoList {
         message: "Lista criada com sucesso",
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         message: "erro interno",
       });
@@ -77,6 +78,7 @@ class ControllerTodoList {
         todos: response,
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         message: "erro interno",
       });
@@ -107,6 +109,7 @@ class ControllerTodoList {
         message: "nota não encontrada",
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         message: "erro interno",
       });
@@ -141,6 +144,7 @@ class ControllerTodoList {
         message: "Lista não encontrada",
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         message: "erro interno",
       });

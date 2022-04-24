@@ -4,11 +4,15 @@ import { ControllerUser } from './controllers/controllerUser';
 import { patterResponse401 } from './utils/response401';
 import { ControllerNotation } from './controllers/controllerNotation';
 import { ControllerTodoList } from './controllers/controllerTodoList';
+import { ControllerContact } from './controllers/controllerContact';
 
 const router = Router();
 
 const controllerUser = new ControllerUser();
+const controllerContact = new ControllerContact()
+
 router.post('/sign', controllerUser.sign);
+router.post('/send', controllerContact.sendMail);
 router.post('/users', controllerUser.create);
 router.post('/send/code-pass', controllerUser.sendMail);
 router.post('/valide/code', controllerUser.valideCode);
