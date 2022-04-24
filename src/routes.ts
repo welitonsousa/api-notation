@@ -12,7 +12,7 @@ const controllerUser = new ControllerUser();
 const controllerContact = new ControllerContact()
 
 router.post('/sign', controllerUser.sign);
-router.post('/send', controllerContact.sendMail);
+router.post('/contact', controllerContact.sendMail);
 router.post('/users', controllerUser.create);
 router.post('/send/code-pass', controllerUser.sendMail);
 router.post('/valide/code', controllerUser.valideCode);
