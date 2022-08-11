@@ -10,6 +10,8 @@ const router = Router();
 
 const controllerUser = new ControllerUser();
 const controllerContact = new ControllerContact()
+const controllerNotation = new ControllerNotation();
+const controllerTodo = new ControllerTodoList();
 
 router.post('/sign', controllerUser.sign);
 router.post('/contact', controllerContact.sendMail);
@@ -20,8 +22,6 @@ router.put('/reset/pass', controllerUser.resetPass);
 
 router.use(auth().initialize());
 
-const controllerNotation = new ControllerNotation();
-const controllerTodo = new ControllerTodoList();
 router.put('/user/picture', patterResponse401, controllerUser.putPicture);
 router.put('/user/pass', patterResponse401, controllerUser.putPass);
 router.get('/user/me', patterResponse401, controllerUser.getme);
@@ -37,5 +37,10 @@ router.get('/todo', patterResponse401, controllerTodo.getTodos);
 router.put('/todo', patterResponse401, controllerTodo.putTodo);
 router.delete('/todo/:id', patterResponse401, controllerTodo.deleteTodo);
 router.delete('/todo/', patterResponse401, controllerTodo.deleteTodo);
+
+//axios.delete('/todo?id=1')
+//axios.delete('/todo', 
+// {data: {id: 1}}
+//)
 
 export { router }

@@ -38,7 +38,8 @@
     "rimraf": "^3.0.2",
     "sqlite3": "^5.0.2",
     "typeorm": "^0.2.32",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "whatsapp-web.js": "^1.17.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",

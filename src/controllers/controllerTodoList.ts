@@ -40,6 +40,7 @@ class ControllerTodoList {
       const user_id = req.user.id;
       const repository = getRepository(Todo);
       let todoList = await repository.find({ userId: user_id });
+      
       if (data.order_by === undefined) {
         data.order_by = "updated_at";
       }
